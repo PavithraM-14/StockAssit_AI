@@ -1,0 +1,78 @@
+# Environment variables (NEVER COMMIT THESE!)
+.env
+.env.local
+.env.development
+.env.production
+*.env
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Build outputs
+build/
+dist/
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Dart/Flutter
+.dart_tool/
+.packages
+.pub/
+build/
+*.g.dart
+*.freezed.dart
+
+# Android
+*.iml
+.gradle/
+local.properties
+android/app/google-services.json
+
+# iOS
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xcworkspace/
+Pods/
+
+# Secrets and credentials
+*.pem
+*.key
+*.p12
+service-account*.json
+google-services.json
+firebase-adminsdk*.json
+
+# Cache
+.cache/
+*.cache
+.temp/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Misc
+*.bak
+*.tmp
+.history/
