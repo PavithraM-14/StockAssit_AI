@@ -22,11 +22,22 @@ const initializeFirebaseAdmin = () => {
   }
 
   try {
+    // Check if running in Firebase Emulator
+    const isEmulator = process.env.FUNCTIONS_EMULATOR === 'true';
+    
     // Check if running in Firebase Cloud Functions (deployed environment)
-    const isDeployed = process.env.FUNCTIONS_EMULATOR !== 'true' && 
+    const isDeployed = !isEmulator && 
                       (process.env.FIREBASE_CONFIG || process.env.GCLOUD_PROJECT);
 
-    if (isDeployed) {
+    if (isEmulator) {
+      // Emulator mode - initialize with minimal config
+      console.log('🔧 Running in Firebase Emulator mode');
+      admin.initializeApp({
+        projectId: process.env.FIREBASE_PROJECT_ID || 'demo-project',
+      });
+      console.log('✅ Firebase Admin initialized (emulator mode)');
+      console.log('⚠️  Using emulator - auth verification will use emulator rules');
+    } else if (isDeployed) {
       // Deployed environment - use Application Default Credentials
       admin.initializeApp({
         credential: admin.credential.applicationDefault(),
@@ -37,10 +48,19 @@ const initializeFirebaseAdmin = () => {
       if (!process.env.FIREBASE_PROJECT_ID || 
           !process.env.FIREBASE_CLIENT_EMAIL || 
           !process.env.FIREBASE_PRIVATE_KEY) {
-        throw new Error(
-          'Missing Firebase credentials. Set FIREBASE_PROJECT_ID, ' +
+        console.warn(
+          '⚠️  Missing Firebase credentials. Set FIREBASE_PROJECT_ID, ' +
           'FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY in .env'
         );
+        console.log('ℹ️  Initializing with minimal config for testing...');
+        
+        // Initialize with project ID only for basic functionality
+        admin.initializeApp({
+          projectId: process.env.FIREBASE_PROJECT_ID || 'stockanalytics-40b2a',
+        });
+        console.log('✅ Firebase Admin initialized (minimal mode)');
+        console.log('⚠️  Auth verification will fail without proper credentials');
+        return admin;
       }
 
       admin.initializeApp({
@@ -58,6 +78,11 @@ const initializeFirebaseAdmin = () => {
     return admin;
   } catch (error) {
     console.error('❌ Failed to initialize Firebase Admin:', error.message);
+    // In emulator mode, don't throw - allow functions to load
+    if (process.env.FUNCTIONS_EMULATOR === 'true') {
+      console.warn('⚠️  Continuing in emulator mode despite initialization error');
+      return admin;
+    }
     throw error;
   }
 };
