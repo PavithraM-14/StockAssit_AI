@@ -1,37 +1,45 @@
 import 'package:flutter/material.dart';
 
 /// Loading Indicator Widget
-/// Shows a centered circular progress indicator with optional message
+/// Centered circular progress indicator with optional message
+/// Fully theme-aware - uses Theme.of(context) colors
 class LoadingIndicator extends StatelessWidget {
   final String? message;
   final double size;
+  final Color? color;
 
   const LoadingIndicator({
     Key? key,
     this.message,
     this.size = 36.0,
+    this.color,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
             width: size,
             height: size,
             child: CircularProgressIndicator(
               strokeWidth: 3,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                color ?? theme.colorScheme.primary,
+              ),
             ),
           ),
           if (message != null) ...[
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               message!,
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
               ),
               textAlign: TextAlign.center,
             ),

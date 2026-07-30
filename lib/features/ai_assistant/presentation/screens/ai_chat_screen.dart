@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../data/ai_repository.dart';
-
-enum _MessageRole { user, ai }
-
-class _ChatMessage {
-  final _MessageRole role;
-  final String text;
-  final DateTime timestamp;
-
-  _ChatMessage({required this.role, required this.text}) : timestamp = DateTime.now();
-}
+import '../widgets/chat_bubble.dart';
 
 /// AI Chat Screen — Conversational Q&A about stocks powered by Gemini via backend
 class AiChatScreen extends StatefulWidget {
@@ -28,8 +19,9 @@ class _AiChatScreenState extends State<AiChatScreen> {
   late final TextEditingController _messageCtrl;
   late final TextEditingController _tickerCtrl;
   final ScrollController _scrollCtrl = ScrollController();
-  final List<_ChatMessage> _messages = [];
+  final List<ChatMessage> _messages = [];
   bool _isLoading = false;
+  bool _hasShownDisclaimer = false;
 
   @override
   void initState() {
@@ -39,12 +31,22 @@ class _AiChatScreenState extends State<AiChatScreen> {
     _tickerCtrl = TextEditingController(text: widget.initialTicker ?? '');
 
     // Welcome message
-    _messages.add(_ChatMessage(
-      role: _MessageRole.ai,
+    _messages.add(ChatMessage(
+      role: MessageRole.ai,
       text: '👋 Hi! I\'m your AI stock analyst powered by Gemini.\n\n'
-          'Enter a ticker above and ask me anything — technical analysis, earnings, P/E ratios, sector trends, or what a signal means. '
-          'Remember: ${AppConstants.disclaimer.substring(0, 120)}...',
+          'Enter a ticker symbol above and ask me anything — technical analysis, fundamentals, '
+          'earnings reports, P/E ratios, sector trends, or what a specific signal means.\n\n'
+          'Let\'s explore the market together! 📊',
     ));
+
+    // Show disclaimer once at the top
+    if (!_hasShownDisclaimer) {
+      _messages.insert(0, ChatMessage(
+        role: MessageRole.system,
+        text: '⚠️ ${AppConstants.disclaimer}',
+      ));
+      _hasShownDisclaimer = true;
+    }
   }
 
   @override
@@ -62,23 +64,30 @@ class _AiChatScreenState extends State<AiChatScreen> {
     if (question.isEmpty) return;
     if (ticker.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a stock ticker first.')),
+        const SnackBar(
+          content: Text('Please enter a stock ticker first.'),
+          backgroundColor: Colors.orange,
+        ),
       );
       return;
     }
 
     setState(() {
-      _messages.add(_ChatMessage(role: _MessageRole.user, text: question));
+      _messages.add(ChatMessage(role: MessageRole.user, text: question));
       _messageCtrl.clear();
       _isLoading = true;
     });
     _scrollToBottom();
 
     try {
-      final answer = await _repository.askAboutStock(ticker: ticker, question: question);
+      final answer = await _repository.askAboutStock(
+        ticker: ticker,
+        question: question,
+      );
+      
       if (mounted) {
         setState(() {
-          _messages.add(_ChatMessage(role: _MessageRole.ai, text: answer));
+          _messages.add(ChatMessage(role: MessageRole.ai, text: answer));
           _isLoading = false;
         });
         _scrollToBottom();
@@ -86,9 +95,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _messages.add(_ChatMessage(
-            role: _MessageRole.ai,
-            text: '⚠️ Sorry, I encountered an error: $e\n\nPlease try again.',
+          _messages.add(ChatMessage(
+            role: MessageRole.ai,
+            text: '⚠️ Sorry, I encountered an error: ${e.toString().replaceAll('AiException:', '').trim()}\n\n'
+                'Please check your connection and try again.',
+            isError: true,
           ));
           _isLoading = false;
         });
@@ -116,20 +127,28 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('AI Stock Analyst'),
+        elevation: 0,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(60),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+          preferredSize: const Size.fromHeight(68),
+          child: Container(
+            color: theme.appBarTheme.backgroundColor,
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
             child: TextField(
               controller: _tickerCtrl,
               textCapitalization: TextCapitalization.characters,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: theme.cardColor,
-                hintText: 'Ticker symbol, e.g. AAPL',
+                hintText: 'Stock ticker (e.g. AAPL, TSLA, GOOGL)',
                 prefixIcon: const Icon(Icons.search),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
           ),
@@ -139,40 +158,56 @@ class _AiChatScreenState extends State<AiChatScreen> {
         children: [
           // Chat messages list
           Expanded(
-            child: ListView.builder(
-              controller: _scrollCtrl,
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) => _buildBubble(_messages[index]),
-            ),
+            child: _messages.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No messages yet',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Enter a ticker above and start asking questions!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollCtrl,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return ChatBubble(message: _messages[index]);
+                    },
+                  ),
           ),
 
           // Typing indicator
           if (_isLoading)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                children: [
-                  const SizedBox(
-                    width: 20, height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                  const SizedBox(width: 10),
-                  Text('Analyzing...', style: TextStyle(color: Colors.grey[600], fontSize: 13)),
-                ],
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: TypingIndicator(message: 'Analyzing with AI...'),
             ),
-
-          // Disclaimer strip
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: Colors.amber[50],
-            child: Text(
-              '⚠️ Not financial advice — for educational purposes only.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, color: Colors.amber[900]),
-            ),
-          ),
 
           // Input area
           _buildInputArea(),
@@ -181,48 +216,18 @@ class _AiChatScreenState extends State<AiChatScreen> {
     );
   }
 
-  Widget _buildBubble(_ChatMessage message) {
-    final isUser = message.role == _MessageRole.user;
-    return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: isUser
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isUser ? 16 : 4),
-            bottomRight: Radius.circular(isUser ? 4 : 16),
-          ),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 4, offset: const Offset(0, 2)),
-          ],
-        ),
-        child: Text(
-          message.text,
-          style: TextStyle(
-            color: isUser ? Colors.white : null,
-            height: 1.45,
-            fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildInputArea() {
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 6, offset: const Offset(0, -2)),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -3),
+            ),
           ],
         ),
         child: Row(
@@ -231,22 +236,44 @@ class _AiChatScreenState extends State<AiChatScreen> {
               child: TextField(
                 controller: _messageCtrl,
                 onSubmitted: (_) => _isLoading ? null : _send(),
+                maxLines: null,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: InputDecoration(
                   hintText: 'Ask about this stock...',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(color: Colors.grey[300]!),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
                   ),
                   filled: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  fillColor: Colors.grey[50],
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             IconButton.filled(
               onPressed: _isLoading ? null : _send,
-              icon: const Icon(Icons.send_rounded),
-              tooltip: 'Send',
+              icon: const Icon(Icons.send_rounded, size: 22),
+              tooltip: 'Send message',
+              style: IconButton.styleFrom(
+                padding: const EdgeInsets.all(12),
+                minimumSize: const Size(48, 48),
+              ),
             ),
           ],
         ),
