@@ -38,6 +38,9 @@ class SignalRepository {
     }
   }
 
+  /// Alias for getSignal (for consistency with watchlist screen)
+  Future<SignalModel> getSignalForTicker(String ticker) => getSignal(ticker);
+
   /// Get signal history for a specific stock ticker
   /// GET /signals/:ticker/history
   Future<List<SignalModel>> getSignalHistory(String ticker, {int limit = 30}) async {

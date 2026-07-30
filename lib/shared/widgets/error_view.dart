@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Standard Error View
+/// Error View Widget
+/// Shows error message with retry button
 class ErrorView extends StatelessWidget {
   final String message;
   final VoidCallback? onRetry;
@@ -15,38 +16,39 @@ class ErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.error_outline,
               size: 64,
-              color: Colors.red,
+              color: Colors.red[300],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Text(
               'Oops! Something went wrong',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               message,
-              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
                 color: Colors.grey[600],
+                fontSize: 14,
               ),
+              textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+                icon: Icon(Icons.refresh),
+                label: Text('Retry'),
               ),
             ],
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Standard Empty State View
+/// Empty State Widget
+/// Shows when a list/collection is empty
 class EmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -19,34 +20,36 @@ class EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 64,
-              color: Colors.grey[400],
+              size: 80,
+              color: Colors.grey[300],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 24),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
+              style: TextStyle(
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
               ),
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 12),
             Text(
               message,
-              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
                 color: Colors.grey[600],
+                fontSize: 14,
               ),
+              textAlign: TextAlign.center,
             ),
             if (action != null) ...[
-              const SizedBox(height: 24),
+              SizedBox(height: 32),
               action!,
             ],
           ],
