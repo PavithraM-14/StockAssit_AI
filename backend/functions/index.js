@@ -3,6 +3,13 @@
  * StockSense Backend API
  */
 
+// Load environment variables from .env file (for local development)
+// In production/emulator, Firebase Functions will use functions:config
+if (process.env.FUNCTIONS_EMULATOR === 'true' || !process.env.FIREBASE_CONFIG) {
+  require('dotenv').config({ path: '../.env' });
+  console.log('📝 Loaded environment variables from .env file');
+}
+
 const functions = require('firebase-functions');
 const express = require('express');
 const cors = require('cors');
@@ -27,7 +34,19 @@ app.use(cors({ origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint (before DB middleware - doesn't need DB)
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'StockSense API is running',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    environment: process.env.FUNCTIONS_EMULATOR === 'true' ? 'emulator' : 'production',
+  });
+});
+
 // Database connection middleware for serverless cold starts & connection reuse
+// Applies to all routes EXCEPT /health
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -36,16 +55,6 @@ app.use(async (req, res, next) => {
     console.error('Failed to connect to DB in request middleware:', error);
     next(error);
   }
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'StockSense API is running',
-    version: '1.0.0',
-    timestamp: new Date().toISOString(),
-  });
 });
 
 // API Routes - Mounted under base paths
