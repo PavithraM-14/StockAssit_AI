@@ -46,7 +46,7 @@ app.get('/health', (req, res) => {
 });
 
 // Database connection middleware for serverless cold starts & connection reuse
-// Applies to all routes EXCEPT /health
+// Applies to all routes EXCEPT /health and /test
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -56,6 +56,163 @@ app.use(async (req, res, next) => {
     next(error);
   }
 });
+
+// ============================================================================
+// TEST ENDPOINTS (FOR DEVELOPMENT ONLY - REMOVE BEFORE PRODUCTION DEPLOY)
+// ============================================================================
+if (process.env.FUNCTIONS_EMULATOR === 'true') {
+  console.log('🧪 Registering test endpoints...');
+  
+  // Lazy-load services only when endpoints are called
+  // Test Finnhub API
+  app.get('/test/finnhub/:ticker', async (req, res, next) => {
+    try {
+      const { ticker } = req.params;
+      console.log(`📊 Testing Finnhub API for ${ticker}...`);
+      
+      // Lazy-load service
+      const marketDataService = require('./services/marketDataService');
+      
+      const quote = await marketDataService.getQuote(ticker);
+      const fundamentals = await marketDataService.getFundamentals(ticker);
+      
+      res.json({
+        success: true,
+        test: 'Finnhub API',
+        ticker,
+        data: {
+          quote,
+          fundamentals
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Test Signal Engine
+  app.get('/test/signal/:ticker', async (req, res, next) => {
+    try {
+      const { ticker } = req.params;
+      console.log(`🎯 Testing Signal Engine for ${ticker}...`);
+      
+      // Lazy-load services
+      const marketDataService = require('./services/marketDataService');
+      const signalEngineService = require('./services/signalEngineService');
+      
+      const quote = await marketDataService.getQuote(ticker);
+      const fundamentals = await marketDataService.getFundamentals(ticker);
+      const news = await marketDataService.getCompanyNews(ticker);
+      const historical = await marketDataService.getHistoricalPrices(ticker);
+      
+      // Format data for signal engine
+      const signalData = {
+        ticker,
+        prices: historical,
+        fundamentals,
+        newsHeadlines: news.map(n => n.headline)
+      };
+      
+      const signal = await signalEngineService.generateSignal(signalData);
+      
+      res.json({
+        success: true,
+        test: 'Signal Engine',
+        ticker,
+        signal
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Test Gemini AI
+  app.get('/test/gemini/:ticker', async (req, res, next) => {
+    try {
+      const { ticker } = req.params;
+      console.log(`🤖 Testing Gemini AI for ${ticker}...`);
+      
+      // Lazy-load services
+      const marketDataService = require('./services/marketDataService');
+      const signalEngineService = require('./services/signalEngineService');
+      const geminiService = require('./services/geminiService');
+      const { buildSignalExplanationPrompt, SHORT_DISCLAIMER } = require('./utils/promptTemplates');
+      
+      const quote = await marketDataService.getQuote(ticker);
+      const fundamentals = await marketDataService.getFundamentals(ticker);
+      const news = await marketDataService.getCompanyNews(ticker);
+      const marketData = { quote, fundamentals, news };
+      
+      const signal = await signalEngineService.generateSignal(ticker, marketData);
+      
+      const prompt = buildSignalExplanationPrompt(ticker, signal, marketData);
+      const explanation = await geminiService.generateText(prompt);
+      
+      res.json({
+        success: true,
+        test: 'Gemini AI',
+        ticker,
+        signal: signal.signal,
+        confidence: signal.confidence,
+        explanation,
+        disclaimer: SHORT_DISCLAIMER
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Test Full Signal Generation (All integrated)
+  app.get('/test/full-signal/:ticker', async (req, res, next) => {
+    try {
+      const { ticker } = req.params;
+      console.log(`🚀 Testing FULL signal generation for ${ticker}...`);
+      
+      // Lazy-load services
+      const marketDataService = require('./services/marketDataService');
+      const signalEngineService = require('./services/signalEngineService');
+      const geminiService = require('./services/geminiService');
+      const { buildSignalExplanationPrompt, SHORT_DISCLAIMER } = require('./utils/promptTemplates');
+      
+      // 1. Fetch market data (Finnhub)
+      const quote = await marketDataService.getQuote(ticker);
+      const fundamentals = await marketDataService.getFundamentals(ticker);
+      const news = await marketDataService.getCompanyNews(ticker);
+      const marketData = { quote, fundamentals, news };
+      
+      // 2. Generate signal (Signal Engine)
+      const signal = await signalEngineService.generateSignal(ticker, marketData);
+      
+      // 3. Generate AI explanation (Gemini)
+      const prompt = buildSignalExplanationPrompt(ticker, signal, marketData);
+      const explanation = await geminiService.generateText(prompt);
+      
+      // 4. Return complete signal
+      res.json({
+        success: true,
+        test: 'Full Signal Generation (Finnhub + Signal Engine + Gemini)',
+        ticker,
+        signal: {
+          ticker,
+          signal: signal.signal,
+          confidence: signal.confidence,
+          explanation,
+          indicators: {
+            technical: signal.technicalScore,
+            fundamental: signal.fundamentalScore,
+            sentiment: signal.sentimentScore
+          },
+          generatedAt: new Date().toISOString()
+        },
+        disclaimer: SHORT_DISCLAIMER
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  console.log('🧪 Test endpoints enabled (emulator mode only)');
+}
 
 // API Routes - Mounted under base paths
 app.use('/api/stocks', stocksRoutes);       // Market data endpoints
