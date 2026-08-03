@@ -13,9 +13,9 @@ class HoldingsScreen extends StatefulWidget {
   final HoldingsRepository? repository;
 
   const HoldingsScreen({
-    Key? key,
+    super.key,
     this.repository,
-  }) : super(key: key);
+  });
 
   @override
   State<HoldingsScreen> createState() => _HoldingsScreenState();
@@ -317,7 +317,7 @@ class _HoldingsScreenState extends State<HoldingsScreen> {
               onEdit: () => _showAddEditDialog(holding),
               onDelete: () => _confirmDelete(holding),
             );
-          }).toList(),
+          }),
         ],
       ),
     );

@@ -8,7 +8,7 @@ class AiChatScreen extends StatefulWidget {
   final String? initialTicker;
   final AiRepository? repository;
 
-  const AiChatScreen({Key? key, this.initialTicker, this.repository}) : super(key: key);
+  const AiChatScreen({super.key, this.initialTicker, this.repository});
 
   @override
   State<AiChatScreen> createState() => _AiChatScreenState();
@@ -204,8 +204,8 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
           // Typing indicator
           if (_isLoading)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: TypingIndicator(message: 'Analyzing with AI...'),
             ),
 
@@ -224,7 +224,7 @@ class _AiChatScreenState extends State<AiChatScreen> {
           color: Theme.of(context).scaffoldBackgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -3),
             ),

@@ -7,9 +7,9 @@ class DisclaimerBanner extends StatelessWidget {
   final String? customText;
 
   const DisclaimerBanner({
-    Key? key,
+    super.key,
     this.customText,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class DisclaimerBanner extends StatelessWidget {
 
 /// Compact Disclaimer Widget for smaller spaces
 class DisclaimerText extends StatelessWidget {
-  const DisclaimerText({Key? key}) : super(key: key);
+  const DisclaimerText({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -12,12 +12,12 @@ class SignalBadge extends StatelessWidget {
   final double size;
 
   const SignalBadge({
-    Key? key,
+    super.key,
     required this.signal,
     this.confidence,
     this.showConfidence = true,
     this.size = 1.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class SignalBadge extends StatelessWidget {
           if (showConfidence && confidence != null) ...[
             SizedBox(width: 4 * size),
             Text(
-              '${confidence}%',
+              '$confidence%',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 11 * size,
@@ -104,12 +104,12 @@ class SignalBadgeFromModel extends StatelessWidget {
   final double size;
 
   const SignalBadgeFromModel({
-    Key? key,
+    super.key,
     required this.signalType,
     this.confidence,
     this.showConfidence = true,
     this.size = 1.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

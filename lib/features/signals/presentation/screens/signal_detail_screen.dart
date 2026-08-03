@@ -15,11 +15,11 @@ class SignalDetailScreen extends StatefulWidget {
   final SignalRepository? repository;
 
   const SignalDetailScreen({
-    Key? key,
+    super.key,
     this.ticker,
     this.signal,
     this.repository,
-  }) : super(key: key);
+  });
 
   @override
   State<SignalDetailScreen> createState() => _SignalDetailScreenState();

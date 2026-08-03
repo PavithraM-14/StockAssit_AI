@@ -1,5 +1,6 @@
 /// Signal Model
 /// Represents a trading signal (BUY/SELL/HOLD) for a stock
+library;
 
 class SignalModel {
   final String symbol;

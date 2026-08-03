@@ -11,12 +11,12 @@ class HoldingCard extends StatelessWidget {
   final VoidCallback? onDelete;
 
   const HoldingCard({
-    Key? key,
+    super.key,
     required this.holding,
     this.currentPrice,
     this.onEdit,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class HoldingCard extends StatelessWidget {
                 Row(
                   children: [
                     CircleAvatar(
-                      backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                      backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                       child: Text(
                         holding.ticker.isNotEmpty ? holding.ticker[0] : 'S',
                         style: TextStyle(

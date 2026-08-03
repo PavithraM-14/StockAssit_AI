@@ -1,12 +1,12 @@
 /// API Constants for StockSense Frontend Application
 class ApiConstants {
-  // Base URL for Deployed Firebase Cloud Functions (Production environment)
-  // Replace 'stock-sense-app' with your actual Firebase project ID once deployed
-  static const String baseUrl = 'https://us-central1-stock-sense-app.cloudfunctions.net/api';
-
-  // Alternative Local Firebase Emulator Base URLs (Uncomment when running locally):
-  // For Android Emulator: 'http://10.0.2.2:5001/stock-sense-app/us-central1/api'
-  // For iOS Simulator / Web: 'http://localhost:5001/stock-sense-app/us-central1/api'
+  // Base URL for Local Firebase Emulator (Development)
+  // Using PC's local network IP: 192.168.1.8
+  static const String baseUrl = 'http://192.168.1.8:5001/stockanalytics-40b2a/us-central1/api';
+  
+  // For Android Emulator use: 'http://10.0.2.2:5001/stockanalytics-40b2a/us-central1/api'
+  // For iOS Simulator / Web use: 'http://localhost:5001/stockanalytics-40b2a/us-central1/api'
+  // For Production (after deployment): 'https://us-central1-stockanalytics-40b2a.cloudfunctions.net/api'
 
   // Endpoint Paths
   static const String stocks = '/stocks';

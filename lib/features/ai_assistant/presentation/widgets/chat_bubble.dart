@@ -29,10 +29,10 @@ class ChatBubble extends StatelessWidget {
   final double maxWidthFactor;
 
   const ChatBubble({
-    Key? key,
+    super.key,
     required this.message,
     this.maxWidthFactor = 0.82,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +95,7 @@ class ChatBubble extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -190,7 +190,7 @@ class ChatBubble extends StatelessWidget {
 class TypingIndicator extends StatefulWidget {
   final String? message;
 
-  const TypingIndicator({Key? key, this.message}) : super(key: key);
+  const TypingIndicator({super.key, this.message});
 
   @override
   State<TypingIndicator> createState() => _TypingIndicatorState();
@@ -227,7 +227,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -268,7 +268,7 @@ class _TypingIndicatorState extends State<TypingIndicator>
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: Colors.grey[400]!.withOpacity(0.3 + (opacity * 0.7)),
+            color: Colors.grey[400]!.withValues(alpha: 0.3 + (opacity * 0.7)),
             shape: BoxShape.circle,
           ),
         );

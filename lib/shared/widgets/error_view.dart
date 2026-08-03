@@ -10,12 +10,12 @@ class ErrorView extends StatelessWidget {
   final IconData? icon;
 
   const ErrorView({
-    Key? key,
+    super.key,
     required this.message,
     this.onRetry,
     this.title,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class ErrorView extends StatelessWidget {
             Icon(
               icon ?? Icons.error_outline,
               size: 64,
-              color: theme.colorScheme.error.withOpacity(0.7),
+              color: theme.colorScheme.error.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
             Text(
@@ -45,7 +45,7 @@ class ErrorView extends StatelessWidget {
             Text(
               message,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               textAlign: TextAlign.center,
             ),

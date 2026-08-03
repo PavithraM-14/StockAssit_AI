@@ -141,9 +141,18 @@ if (process.env.FUNCTIONS_EMULATOR === 'true') {
       const quote = await marketDataService.getQuote(ticker);
       const fundamentals = await marketDataService.getFundamentals(ticker);
       const news = await marketDataService.getCompanyNews(ticker);
+      const historical = await marketDataService.getHistoricalPrices(ticker);
       const marketData = { quote, fundamentals, news };
       
-      const signal = await signalEngineService.generateSignal(ticker, marketData);
+      // Format data for signal engine
+      const signalData = {
+        ticker,
+        prices: historical,
+        fundamentals,
+        newsHeadlines: news.map(n => n.headline)
+      };
+      
+      const signal = await signalEngineService.generateSignal(signalData);
       
       const prompt = buildSignalExplanationPrompt(ticker, signal, marketData);
       const explanation = await geminiService.generateText(prompt);
@@ -178,10 +187,18 @@ if (process.env.FUNCTIONS_EMULATOR === 'true') {
       const quote = await marketDataService.getQuote(ticker);
       const fundamentals = await marketDataService.getFundamentals(ticker);
       const news = await marketDataService.getCompanyNews(ticker);
+      const historical = await marketDataService.getHistoricalPrices(ticker);
       const marketData = { quote, fundamentals, news };
       
       // 2. Generate signal (Signal Engine)
-      const signal = await signalEngineService.generateSignal(ticker, marketData);
+      const signalData = {
+        ticker,
+        prices: historical,
+        fundamentals,
+        newsHeadlines: news.map(n => n.headline)
+      };
+      
+      const signal = await signalEngineService.generateSignal(signalData);
       
       // 3. Generate AI explanation (Gemini)
       const prompt = buildSignalExplanationPrompt(ticker, signal, marketData);

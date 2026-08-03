@@ -9,10 +9,10 @@ class SignalCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const SignalCard({
-    Key? key,
+    super.key,
     required this.signal,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -9,7 +9,7 @@ import '../../domain/alert_model.dart';
 class AlertsScreen extends StatefulWidget {
   final AlertsRepository? repository;
 
-  const AlertsScreen({Key? key, this.repository}) : super(key: key);
+  const AlertsScreen({super.key, this.repository});
 
   @override
   State<AlertsScreen> createState() => _AlertsScreenState();
@@ -104,7 +104,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: selectedCondition,
+                  initialValue: selectedCondition,
                   decoration: const InputDecoration(labelText: 'Condition'),
                   items: _conditions
                       .map((c) => DropdownMenuItem(value: c, child: Text(c.replaceAll('_', ' '))))
@@ -201,8 +201,8 @@ class _AlertsScreenState extends State<AlertsScreen> {
             child: ListTile(
               leading: CircleAvatar(
                 backgroundColor: alert.isActive
-                    ? Colors.green.withOpacity(0.15)
-                    : Colors.grey.withOpacity(0.15),
+                    ? Colors.green.withValues(alpha: 0.15)
+                    : Colors.grey.withValues(alpha: 0.15),
                 child: Icon(
                   Icons.notifications,
                   color: alert.isActive ? Colors.green : Colors.grey,

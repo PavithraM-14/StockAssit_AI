@@ -107,7 +107,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 1,
         color: surfaceColor,
         surfaceTintColor: Colors.transparent,
@@ -175,7 +175,7 @@ class AppTheme {
         centerTitle: false,
         titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFFF8FAFC)),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         color: darkSurfaceColor,
         surfaceTintColor: Colors.transparent,

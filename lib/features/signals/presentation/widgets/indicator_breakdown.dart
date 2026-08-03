@@ -8,9 +8,9 @@ class IndicatorBreakdown extends StatelessWidget {
   final SignalIndicators indicators;
 
   const IndicatorBreakdown({
-    Key? key,
+    super.key,
     required this.indicators,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

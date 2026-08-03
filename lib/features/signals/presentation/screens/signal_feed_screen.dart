@@ -13,9 +13,9 @@ class SignalFeedScreen extends StatefulWidget {
   final SignalRepository? repository;
 
   const SignalFeedScreen({
-    Key? key,
+    super.key,
     this.repository,
-  }) : super(key: key);
+  });
 
   @override
   State<SignalFeedScreen> createState() => _SignalFeedScreenState();

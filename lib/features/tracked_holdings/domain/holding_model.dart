@@ -1,5 +1,6 @@
 /// Holding Model
 /// Represents a stock position tracked by the user in their portfolio
+library;
 
 class HoldingModel {
   final String id;

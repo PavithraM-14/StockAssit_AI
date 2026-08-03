@@ -5,7 +5,7 @@ import '../../data/auth_repository.dart';
 
 /// Login & Sign-Up Screen with Firebase Authentication
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -90,7 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
           _errorMessage = genericError;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(genericError),
             backgroundColor: Colors.red[700],
             behavior: SnackBarBehavior.floating,

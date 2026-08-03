@@ -15,10 +15,10 @@ class WatchlistScreen extends StatefulWidget {
   final SignalRepository? signalRepository;
 
   const WatchlistScreen({
-    Key? key,
+    super.key,
     this.repository,
     this.signalRepository,
-  }) : super(key: key);
+  });
 
   @override
   State<WatchlistScreen> createState() => _WatchlistScreenState();
@@ -284,7 +284,7 @@ class _WatchlistScreenState extends State<WatchlistScreen> {
                       // Ticker Symbol
                       CircleAvatar(
                         radius: 24,
-                        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                         child: Text(
                           ticker.isNotEmpty ? ticker[0] : '?',
                           style: TextStyle(
